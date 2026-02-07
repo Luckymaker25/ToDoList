@@ -81,27 +81,55 @@ try:
     df = df[df['Prioritas'].isin(selected_priority)]
     df = df[df['Status'].isin(selected_status)]
 
-    # --- MAIN TABLE ---
+# --- MAIN TABLE DENGAN FITUR KLIK ---
     st.divider()
     st.subheader(f"Daftar Tugas ({len(df)} ditemukan)")
+    st.info("💡 **Tips:** Klik pada baris tabel untuk melihat Deskripsi Tugas di bawah.")
 
-    # Menambahkan kolom link Update
+    # Menambahkan kolom link Update (untuk keperluan data)
     df['Action'] = FORM_UPDATE_BASE + df['ID Tugas'].astype(str)
 
-    # Menampilkan tabel dengan kolom yang dipilih
+    # Kolom yang akan ditampilkan di tabel
     display_cols = ['ID Tugas', 'Deadline', 'Nama Tugas', 'Kategori', 'Prioritas', 'Status', 'Action']
     
-    st.dataframe(
+    # Membuat tabel interaktif yang bisa dipilih (selection)
+    event = st.dataframe(
         df[display_cols],
         column_config={
             "Deadline": st.column_config.DateColumn("Deadline", format="DD/MM/YYYY"),
             "Action": st.column_config.LinkColumn("Update Link", display_text="Update Task ↗️"),
-            "Status": st.column_config.TextColumn("Status"),
-            "Prioritas": st.column_config.TextColumn("Prioritas"),
         },
         hide_index=True,
-        use_container_width=True
+        use_container_width=True,
+        on_select="rerun", # Menjalankan ulang script saat baris diklik
+        selection_mode="single-row" # Hanya bisa pilih satu baris
     )
 
+    # --- DETAIL DESKRIPSI (Muncul jika baris diklik) ---
+    if event.selection.rows:
+        selected_row_index = event.selection.rows[0]
+        # Mengambil data asli berdasarkan index yang dipilih di tabel yang sudah difilter
+        task_data = df.iloc[selected_row_index]
+        
+        st.markdown("---")
+        with st.container(border=True):
+            st.subheader(f"🔍 Detail: {task_data['Nama Tugas']}")
+            
+            col_det1, col_det2 = st.columns([1, 2])
+            with col_det1:
+                st.write(f"**ID Tugas:** {task_data['ID Tugas']}")
+                st.write(f"**Kategori:** {task_data['Kategori']}")
+                st.write(f"**Prioritas:** {task_data['Prioritas']}")
+            
+            with col_det2:
+                st.write("**Deskripsi Tugas:**")
+                # Menampilkan kolom Deskripsi dari GSheet
+                deskripsi = task_data['Deskripsi'] if pd.notna(task_data['Deskripsi']) else "Tidak ada deskripsi."
+                st.info(deskripsi)
+                
+                # Tambahan: Catatan jika ada
+                if 'Catatan' in task_data and pd.notna(task_data['Catatan']):
+                    st.write(f"*Catatan Tambahan:* {task_data['Catatan']}")
 except Exception as e:
+
     st.error(f"Gagal memuat data. Pastikan link GSheet benar dan publik. Error: {e}")
