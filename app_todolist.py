@@ -69,14 +69,14 @@ try:
     
     selected_priority = st.sidebar.multiselect("Prioritas", df['Prioritas'].unique(), default=df['Prioritas'].unique())
     # Mencari semua status unik yang tersedia
-list_status = df['Status'].unique().tolist()
+    list_status = df['Status'].unique().tolist()
 
-# Menentukan status apa saja yang ditampilkan di awal (Default)
-# Kita buat list yang isinya SEMUA status KECUALI "Selesai"
-default_status = [s for s in list_status if s != "Selesai"]
+    # Menentukan status apa saja yang ditampilkan di awal (Default)
+    # Kita buat list yang isinya SEMUA status KECUALI "Selesai"
+    default_status = [s for s in list_status if s != "Selesai"]
 
-# Masukkan ke dalam multiselect
-selected_status = st.sidebar.multiselect("Status", list_status, default=default_status)
+    # Masukkan ke dalam multiselect
+    selected_status = st.sidebar.multiselect("Status", list_status, default=default_status)
 
     # Apply Filters
     if search:
@@ -141,6 +141,7 @@ selected_status = st.sidebar.multiselect("Status", list_status, default=default_
 except Exception as e:
 
     st.error(f"Gagal memuat data. Pastikan link GSheet benar dan publik. Error: {e}")
+
 
 
 
