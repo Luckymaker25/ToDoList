@@ -134,3 +134,4 @@ except Exception as e:
 
     st.error(f"Gagal memuat data. Pastikan link GSheet benar dan publik. Error: {e}")
 
+
